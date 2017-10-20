@@ -12,6 +12,8 @@
 #include <tgmath.h>
 #include <float.h>
 #include <memory>
+#include <climits>
+#include <algorithm>
 
 using namespace std;
 

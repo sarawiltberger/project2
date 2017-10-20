@@ -318,47 +318,6 @@ int DecisionTree::numValuePositive(int featureIndex, string value, vector<vector
     return numMatches;
 }
 
-/*
-string DecisionTree::getSplitAttribute(vector<vector<string>>& dataTable){
-	double minEntropy = DBL_MAX;
-	int splitCol = -1;
-    //for each feature, not including the class
-	for(int col = 1; col < dataTable[0].size(); col++){
-        //for each possible feature value, get a count of how many there are
-		vector<int> countFeatureValues = numFeatureValues(col, dataTable);
-		vector<double> featureEntropy;
-		double colEntropy = 0.0;
-		map<string, int> valFrequency;
-		for(int row = 0; row < dataTable.size(); row++){
-			double entropy = 0.0;
-			if(valFrequency.find(dataTable[row][col]) != valFrequency.end()){
-				valFrequency[dataTable[row][col]]++;
-			}else{
-				valFrequency[dataTable[row][col]] =1;
-				vector<vector<string>> tableWithFeatureVal = pruneTable(dataTable[row][col], col, dataTable);
-				vector<int> numDiffClasses = numFeatureValues(0, tableWithFeatureVal);
-				for(int i = 0; i < numDiffClasses.size()-1; i++){
-					double currValCount = numDiffClasses[i];
-					entropy -= (currValCount/numDiffClasses[numDiffClasses.size()-1])*(log(currValCount/numDiffClasses[numDiffClasses.size()-1]) / log(2));
-				}
-				featureEntropy.push_back(entropy);
-				entropy = 0.0;
-			}
-		}
-		for(int i = 0; i < countFeatureValues.size()-1; i++){
-			colEntropy += ((double) countFeatureValues[i] * (double) featureEntropy[i]);
-		}
-		colEntropy = colEntropy / ((double) countFeatureValues[countFeatureValues.size()-1]);
-		if(colEntropy <= minEntropy){
-			minEntropy = colEntropy;
-			splitCol = col;
-		}
-
-	}
-	return featureVector[splitCol];
-
-}*/
-
 bool DecisionTree::allSameClass(vector<vector<string>>& dataTable){
     string firstVal = dataTable[0][0];
 	for(int i = 1; i < dataTable.size(); i++){
