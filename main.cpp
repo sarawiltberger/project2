@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     
-	string inputFile = "data.txt";
+	string inputFile = "/Users/sarawiltberger/Desktop/Part1/data.txt";
     if (argc == 2){
         inputFile = argv[1];
     }

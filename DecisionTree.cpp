@@ -15,8 +15,8 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         int validSetStartIndex = dataVector.size()*.6;
         int trainSetEndIndex = testSetStartIndex-1;
         vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
-        vector<vector<string>> validData(dataVector.begin()+(validSetStartIndex), dataVector.begin()+validSetEndIndex);
-        vector<vector<string>> testData(dataVector.begin()+(testSetStartIndex), dataVector.end());
+        vector<vector<string>> validData((dataVector.begin()+validSetStartIndex), (dataVector.begin()+validSetEndIndex));
+        vector<vector<string>> testData((dataVector.begin()+testSetStartIndex), dataVector.end());
         auto node= make_shared<Node>();
         root = buildTree(node, trainData, trainData);
         trainAcc = accuracy(root, validData);
@@ -27,11 +27,10 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         int trainSetEndIndex = testSetStartIndex-1;
         vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
         vector<vector<string>> testData(dataVector.begin()+testSetStartIndex, dataVector.end());
-         auto node= make_shared<Node>();
+        auto node= make_shared<Node>();
         root = buildTree(node, trainData,trainData);
         //root = buildTree(node, dataVector, dataVector);
         test = accuracy(root, testData);
-        trainAcc = accuracy(root, trainData);
     }
 	
     

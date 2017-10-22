@@ -39,11 +39,12 @@ public:
 
 private:
 
-  double trainAcc;
-  double test;
+  
     
   string inputFile;
   int maxDepth;
+  double trainAcc=1;
+  double test;
   vector<vector <string > > dataVector; //all data
   vector<string> featureVector;
   vector< vector<string> > featurePossibleValues; //for the feature at i, possible values it could have
