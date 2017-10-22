@@ -13,10 +13,11 @@ int main(int argc, char *argv[]) {
         inputFile = argv[1];
     }
     
-    cout << "Unbounded decision tree accuracy: ";
+    cout << "Unbounded decision tree: " << endl;
     DecisionTree dt(inputFile, INT_MAX, false);
     //dt.printTree();
-    cout<<dt.getTestAccuracy()<<endl;
+    cout<<"Train Accuracy: " << dt.getTrainAccuracy()<<endl;
+    cout<<"Test Accuracy: " << dt.getTestAccuracy()<<endl;
 
 
     cout<<std::setw(6)<<"depth";

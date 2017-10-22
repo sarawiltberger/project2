@@ -13,7 +13,7 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         int testSetStartIndex = dataVector.size()*.8;
         int validSetEndIndex = testSetStartIndex -1;
         int validSetStartIndex = dataVector.size()*.6;
-        int trainSetEndIndex = validSetStartIndex-1;
+        int trainSetEndIndex = testSetStartIndex-1;
         vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
         vector<vector<string>> validData(dataVector.begin()+(validSetStartIndex), dataVector.begin()+validSetEndIndex);
         vector<vector<string>> testData(dataVector.begin()+(testSetStartIndex), dataVector.end());
@@ -31,6 +31,7 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         root = buildTree(node, trainData,trainData);
         //root = buildTree(node, dataVector, dataVector);
         test = accuracy(root, testData);
+        trainAcc = accuracy(root, trainData);
     }
 	
     
