@@ -43,7 +43,7 @@ private:
     
   string inputFile;
   int maxDepth;
-  double trainAcc=1;
+  double trainAcc;
   double test;
   vector<vector <string > > dataVector; //all data
   vector<string> featureVector;
@@ -55,7 +55,7 @@ private:
   int numAttributes;
   vector<vector<string>> readData();
   vector<string> parseDataString(string str, bool notFirst);
-    shared_ptr<Node> buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples);
+    shared_ptr<Node> buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes);
   void print2dVect(vector<std::vector<string> > vec);
   bool allSameClass(vector<vector<string>>& dataTable);
   string getSplitAttribute(vector<vector<string>>& dataTable);

@@ -18,7 +18,7 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         vector<vector<string>> validData((dataVector.begin()+validSetStartIndex), (dataVector.begin()+validSetEndIndex));
         vector<vector<string>> testData((dataVector.begin()+testSetStartIndex), dataVector.end());
         auto node= make_shared<Node>();
-        root = buildTree(node, trainData, trainData);
+        root = buildTree(node, trainData, trainData, numAttributes);
         trainAcc = accuracy(root, validData);
         test = accuracy(root, testData);
         
@@ -28,9 +28,10 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
         vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
         vector<vector<string>> testData(dataVector.begin()+testSetStartIndex, dataVector.end());
         auto node= make_shared<Node>();
-        root = buildTree(node, trainData,trainData);
+        root = buildTree(node, trainData,trainData, numAttributes);
         //root = buildTree(node, dataVector, dataVector);
         test = accuracy(root, testData);
+        trainAcc = accuracy(root, trainData);
     }
 	
     
@@ -67,7 +68,7 @@ void DecisionTree::printTree(shared_ptr<Node> node){
 }
 
 string DecisionTree::TreeOutput(shared_ptr<DecisionTree::Node> node,  vector<string>& testExample){
-    string output = node->value;
+    string output;// = node->value;
     while(!node->isLeaf && !node->children.empty()){
         int index = featureToIndex[node->feature];
         string value = testExample[index];
@@ -78,12 +79,8 @@ string DecisionTree::TreeOutput(shared_ptr<DecisionTree::Node> node,  vector<str
                 break;
             }
         }
-        if(childIndex == -1){
-            cout << "here bad" << endl;
-        }
         node = node->children[childIndex];
         output = node->value;
-
     }
     return output;
 }
@@ -97,15 +94,12 @@ double DecisionTree::accuracy(shared_ptr<DecisionTree::Node> tree,  vector<vecto
         if(testTable[i][0] == treeOutput){
             numRight++;
         }
-        /*if(tree->isLeaf){
-            cout << tree->value << ",";
-        }*/
     }
     
     return (double)numRight/testTable.size();
 }
 
-shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples){
+shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes){
     //cout << "size: " << examples.size()<<endl;
     if(examples.size() ==0){
         currNode -> value = mostCommonClass(parentExamples);
@@ -113,7 +107,7 @@ shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode
         return currNode;
     }
     //if no attributes
-    if(numAttributes <=0){
+    if(numberAttributes <=0){
         currNode -> value = mostCommonClass(examples);
         currNode ->isLeaf = true;
         return currNode;
@@ -136,7 +130,7 @@ shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode
         currNode->feature = attributeToSplit;
         int featureIndex = featureToIndex[attributeToSplit];
         featureVector[featureIndex] = "-1";
-        numAttributes--;
+        numberAttributes--;
         //cout << "feature index: " <<featureIndex << endl;
         //cout << "table size " <<examples.size() << endl;
         //each branch for tree
@@ -150,7 +144,7 @@ shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode
             //childNode->feature = attributeToSplit;
             //cout << "prune on: " << featurePossibleValues[featureIndex][i] <<endl;
             vector<vector<string>> childExamples = pruneTable(featurePossibleValues[featureIndex][i], featureIndex, examples);
-            currNode->children.push_back(buildTree(childNode, childExamples, examples));
+            currNode->children.push_back(buildTree(childNode, childExamples, examples, numberAttributes));
         }
     }
     return currNode;

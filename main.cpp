@@ -19,7 +19,6 @@ int main(int argc, char *argv[]) {
     cout<<"Train Accuracy: " << dt.getTrainAccuracy()<<endl;
     cout<<"Test Accuracy: " << dt.getTestAccuracy()<<endl;
 
-
     cout<<std::setw(6)<<"depth";
     cout<<std::setw(10)<<"train%";
     cout<<std::setw(10)<<"valid%";
