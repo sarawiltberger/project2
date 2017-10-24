@@ -8,27 +8,31 @@ DecisionTree::DecisionTree(string _inputFile, int _maxDepth, bool train){
 	dataVector = readData();
     numAttributes = featureVector.size()-1;
 	//randomly shuffle dataVector
-	random_shuffle (dataVector.begin(), dataVector.end());
+	//random_shuffle (dataVector.begin(), dataVector.end());
     if(train){
         int testSetStartIndex = dataVector.size()*.8;
         int validSetEndIndex = testSetStartIndex -1;
         int validSetStartIndex = dataVector.size()*.6;
-        int trainSetEndIndex = testSetStartIndex-1;
-        vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
+        //int trainSetEndIndex = testSetStartIndex-1;
+        vector<vector<string>> trainData(dataVector.begin(), (dataVector.begin()+(validSetStartIndex-1)));
+        //cout << "train size " << trainData.size() << endl;
         vector<vector<string>> validData((dataVector.begin()+validSetStartIndex), (dataVector.begin()+validSetEndIndex));
         vector<vector<string>> testData((dataVector.begin()+testSetStartIndex), dataVector.end());
         auto node= make_shared<Node>();
-        root = buildTree(node, trainData, trainData, numAttributes);
-        trainAcc = accuracy(root, validData);
-        test = accuracy(root, testData);
+        root = buildTree(node, trainData, trainData, numAttributes, featureVector);
+        trainAcc = accuracy(root, trainData);
+        test = accuracy(root, validData);
         
     }else{
         int testSetStartIndex = dataVector.size()*.8;
         int trainSetEndIndex = testSetStartIndex-1;
+        /*
+        vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+100);
+        vector<vector<string>> testData(dataVector.begin()+testSetStartIndex, dataVector.end());*/
         vector<vector<string>> trainData(dataVector.begin(), dataVector.begin()+trainSetEndIndex);
         vector<vector<string>> testData(dataVector.begin()+testSetStartIndex, dataVector.end());
         auto node= make_shared<Node>();
-        root = buildTree(node, trainData,trainData, numAttributes);
+        root = buildTree(node, trainData,trainData, numAttributes, featureVector);
         //root = buildTree(node, dataVector, dataVector);
         test = accuracy(root, testData);
         trainAcc = accuracy(root, trainData);
@@ -68,7 +72,7 @@ void DecisionTree::printTree(shared_ptr<Node> node){
 }
 
 string DecisionTree::TreeOutput(shared_ptr<DecisionTree::Node> node,  vector<string>& testExample){
-    string output;// = node->value;
+    string output = node->value;
     while(!node->isLeaf && !node->children.empty()){
         int index = featureToIndex[node->feature];
         string value = testExample[index];
@@ -82,40 +86,49 @@ string DecisionTree::TreeOutput(shared_ptr<DecisionTree::Node> node,  vector<str
         node = node->children[childIndex];
         output = node->value;
     }
+    //cout << node -> feature << endl;
     return output;
 }
 
 
 double DecisionTree::accuracy(shared_ptr<DecisionTree::Node> tree,  vector<vector<string>>& testTable){
     int numRight = 0;
+    int numWrong = 0;
     for(int i = 0; i < testTable.size(); i++){
         //find the tree output
         string treeOutput = TreeOutput(tree, testTable[i]);
         if(testTable[i][0] == treeOutput){
             numRight++;
+        }else{
+            numWrong++;
         }
     }
-    
+    /*
+    cout << "wrong: " << numWrong << endl;
+    cout << "right: " << numRight << endl;
+    cout << "size: " << testTable.size() << endl;*/
     return (double)numRight/testTable.size();
 }
 
-shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes){
+shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes, vector<string> currFeatureVector){
     //cout << "size: " << examples.size()<<endl;
     if(examples.size() ==0){
         currNode -> value = mostCommonClass(parentExamples);
         currNode ->isLeaf = true;
+        currNode -> feature = "examples";
         return currNode;
     }
     //if no attributes
-    if(numberAttributes <=0){
+    if(numAttributes <=0){
         currNode -> value = mostCommonClass(examples);
         currNode ->isLeaf = true;
+        currNode -> feature = "num Attributes";
         return currNode;
     }
     if(currNode->depth == maxDepth){
         currNode->isLeaf = true;
-
         currNode->value = mostCommonClass(examples); //class is the first one
+        currNode -> feature = "max depth";
         return currNode;
         
     }
@@ -123,14 +136,16 @@ shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode
         //int fIndex = featureToIndex(currNode->feature);
         currNode->isLeaf = true;
         currNode->value = examples[0][0]; //class is the first one
+        currNode -> feature = "same class";
         return currNode;
     }else{
-        string attributeToSplit = getSplitAttribute(examples);
+        string attributeToSplit = getSplitAttribute(examples, currFeatureVector);
         //cout << "attribute to split: " <<attributeToSplit << endl;
         currNode->feature = attributeToSplit;
         int featureIndex = featureToIndex[attributeToSplit];
-        featureVector[featureIndex] = "-1";
+        currFeatureVector[featureIndex] = "-1";
         numberAttributes--;
+        //cout << numberAttributes << endl;
         //cout << "feature index: " <<featureIndex << endl;
         //cout << "table size " <<examples.size() << endl;
         //each branch for tree
@@ -144,7 +159,7 @@ shared_ptr<DecisionTree::Node> DecisionTree::buildTree(shared_ptr<Node> currNode
             //childNode->feature = attributeToSplit;
             //cout << "prune on: " << featurePossibleValues[featureIndex][i] <<endl;
             vector<vector<string>> childExamples = pruneTable(featurePossibleValues[featureIndex][i], featureIndex, examples);
-            currNode->children.push_back(buildTree(childNode, childExamples, examples, numberAttributes));
+            currNode->children.push_back(buildTree(childNode, childExamples, examples, numberAttributes, currFeatureVector));
         }
     }
     return currNode;
@@ -240,12 +255,12 @@ vector<int> DecisionTree::numFeatureValues(int featureIndex, vector<vector<strin
 	return counts;
 }
 
-string DecisionTree::getSplitAttribute(vector<vector<string>>& dataTable){
+string DecisionTree::getSplitAttribute(vector<vector<string>>& dataTable, vector<string> currFeatureVector){
     double minEntropy = DBL_MAX;
     int splitCol = -1;
     //for each feature, not including the class
     for(int col = 1; col < dataTable[0].size(); col++){
-        if(featureVector[col] == "-1"){
+        if(currFeatureVector[col] == "-1"){
             continue;
         }
         //for each possible feature value, get a count of how many there are
@@ -297,7 +312,7 @@ string DecisionTree::getSplitAttribute(vector<vector<string>>& dataTable){
         }
         
     }
-    return featureVector[splitCol];
+    return currFeatureVector[splitCol];
     
 }
 

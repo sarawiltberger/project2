@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
         cout<<std::setw(10)<<dt.getTrainAccuracy();
         cout<<std::setw(10)<<dt.getTestAccuracy();
         cout<<endl;
-        if(maxAccuracy < dt.getTrainAccuracy()){
-            maxAccuracy = dt.getTrainAccuracy();
+        if(maxAccuracy < dt.getTestAccuracy()){
+            maxAccuracy = dt.getTestAccuracy();
             maxDepth = i;
         }
     }

@@ -55,10 +55,10 @@ private:
   int numAttributes;
   vector<vector<string>> readData();
   vector<string> parseDataString(string str, bool notFirst);
-    shared_ptr<Node> buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes);
+    shared_ptr<Node> buildTree(shared_ptr<Node> currNode, vector<vector<string>>& examples, vector<vector<string>>& parentExamples, int numberAttributes, vector<string> currFeatureVector);
   void print2dVect(vector<std::vector<string> > vec);
   bool allSameClass(vector<vector<string>>& dataTable);
-  string getSplitAttribute(vector<vector<string>>& dataTable);
+  string getSplitAttribute(vector<vector<string>>& dataTable, vector<string> currFeatureVector);
   vector<vector<string>> pruneTable(string val, int featureIndex, vector<vector<string>>& dataTable); // deletes all rows from table with that feature with that value
   vector<int> numFeatureValues(int featureIndex, vector<vector<string>>& dataTable); //how many of each feature value in dataTable (and sums in last)
     int numValuePositive(int featureIndex, string value, vector<vector<string>>& dataTable); //returns count of how many examples where feature = value and class = 1
